@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://cvm6p5q7usw7e"]
+
+[ext_resource type="Script" uid="uid://dmvti5be5rgws" path="res://scripts/Player.gd" id="1_dc17i"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_7wuwp"]
+radius = 0.25
+height = 0.5
+
+[sub_resource type="Gradient" id="Gradient_kc1ni"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_u7qqw"]
+gradient = SubResource("Gradient_kc1ni")
+
+[sub_resource type="Gradient" id="Gradient_dc17i"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ya15h"]
+gradient = SubResource("Gradient_dc17i")
+fill_from = Vector2(0, 0.116161615)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s3gel"]
+shading_mode = 2
+albedo_texture = SubResource("GradientTexture2D_u7qqw")
+albedo_texture_force_srgb = true
+roughness_texture = SubResource("GradientTexture2D_ya15h")
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_fjs3g"]
+radius = 0.25
+
+[node name="PlayerMain" type="RigidBody3D" unique_id=1623447254]
+script = ExtResource("1_dc17i")
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=1705904234]
+mesh = SubResource("SphereMesh_7wuwp")
+surface_material_override/0 = SubResource("StandardMaterial3D_s3gel")
+
+[node name="CollisionShape" type="CollisionShape3D" parent="." unique_id=1764718150]
+shape = SubResource("SphereShape3D_fjs3g")
+
+[node name="CameraAnchor" type="Node3D" parent="." unique_id=404061813]
+unique_name_in_owner = true
+
+[node name="CameraRayCast" type="RayCast3D" parent="." unique_id=1699606552]
+top_level = true
+target_position = Vector3(0, -10, 0)
