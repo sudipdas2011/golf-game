@@ -48,10 +48,10 @@ _subresources={
 }
 },
 "nodes": {
-"PATH:Boundary": {
+"PATH:BoundaryUpdated": {
 "generate/physics": true
 },
-"PATH:Ground": {
+"PATH:GroundUpdated": {
 "generate/physics": true
 }
 }

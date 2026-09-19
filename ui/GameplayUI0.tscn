@@ -1,0 +1,91 @@
+[gd_scene format=3 uid="uid://bsdlid2m4qehb"]
+
+[node name="GameplayUi0" type="Control" unique_id=1585966258]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=779915463]
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer" unique_id=1057713793]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 32
+
+[node name="ControlLayout" type="Control" parent="CanvasLayer/MarginContainer" unique_id=657519213]
+layout_mode = 2
+
+[node name="TouchControlsLeft" type="VBoxContainer" parent="CanvasLayer/MarginContainer/ControlLayout" unique_id=1823928744]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_right = 40.0
+grow_vertical = 0
+
+[node name="JoystickContainer" type="Control" parent="CanvasLayer/MarginContainer/ControlLayout/TouchControlsLeft" unique_id=495292378]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+
+[node name="JoystickBase" type="TextureRect" parent="CanvasLayer/MarginContainer/ControlLayout/TouchControlsLeft/JoystickContainer" unique_id=1783395555]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 3
+
+[node name="JoystickHandle" type="TextureRect" parent="CanvasLayer/MarginContainer/ControlLayout/TouchControlsLeft/JoystickContainer/JoystickBase" unique_id=91017309]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 3
+
+[node name="TouchControlsRight" type="HBoxContainer" parent="CanvasLayer/MarginContainer/ControlLayout" unique_id=1020797268]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -40.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 24
+
+[node name="ButtonActionContainer" type="GridContainer" parent="CanvasLayer/MarginContainer/ControlLayout/TouchControlsRight" unique_id=154917355]
+layout_mode = 2
+size_flags_vertical = 8
+columns = 2
+
+[node name="PrimaryActionButton" type="Button" parent="CanvasLayer/MarginContainer/ControlLayout/TouchControlsRight/ButtonActionContainer" unique_id=34985242]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+
+[node name="SecondaryActionButton" type="Button" parent="CanvasLayer/MarginContainer/ControlLayout/TouchControlsRight/ButtonActionContainer" unique_id=1568551461]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+
+[node name="DevActions" type="VBoxContainer" parent="CanvasLayer/MarginContainer/ControlLayout/TouchControlsRight" unique_id=1886118905]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="ResetSceneButton" type="Button" parent="CanvasLayer/MarginContainer/ControlLayout/TouchControlsRight/DevActions" unique_id=2116349695]
+custom_minimum_size = Vector2(140, 50)
+layout_mode = 2
+text = "RESET"

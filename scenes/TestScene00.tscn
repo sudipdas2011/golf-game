@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://qmd0sjtjfvlm"]
+
+[ext_resource type="PackedScene" uid="uid://bd871itk28m78" path="res://scenes/models/TestScene0.glb" id="1_kv0oe"]
+
+[node name="TestScene00" type="Node3D" unique_id=2092887747]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=28299939]
+visible = false
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=744069993]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=601452216]
+
+[node name="TestScene0_glb" parent="." unique_id=856689714 instance=ExtResource("1_kv0oe")]
+
+[editable path="TestScene0_glb"]
