@@ -42,13 +42,15 @@ materials/extract_path=""
 _subresources={
 "nodes": {
 "PATH:BoundaryUpdated": {
-"generate/physics": true
+"generate/physics": true,
+"physics/shape_type": 2
 },
 "PATH:GroundUpdated": {
 "decomposition/advanced": true,
 "decomposition/max_convex_hulls": 64,
 "decomposition/resolution": 500000,
-"generate/physics": true
+"generate/physics": true,
+"physics/shape_type": 2
 }
 }
 }

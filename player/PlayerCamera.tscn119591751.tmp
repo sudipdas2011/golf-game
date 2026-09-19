@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://bdw1fmp3qs0xx"]
+
+[ext_resource type="Script" uid="uid://k7c7vcjaudhr" path="res://scripts/PlayerCamera.gd" id="1_li53i"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_li53i"]
+margin = 0.299
+
+[node name="PlayerCamera" type="CharacterBody3D" unique_id=746119092]
+script = ExtResource("1_li53i")
+mouse_sensitivity = null
+min_pitch = null
+max_pitch = null
+camera_range = null
+fov_fac = 10.0
+camera_offset = null
+rotation_smooth_speed = null
+wall_push_speed = null
+wall_return_speed = null
+camera_glide_weight = null
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1846488934]
+unique_name_in_owner = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1551810273]
+shape = SubResource("SphereShape3D_li53i")
