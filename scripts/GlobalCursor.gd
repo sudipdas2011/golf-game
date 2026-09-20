@@ -9,6 +9,8 @@ var pos_of_player : Vector3
 var hit_position : Vector3
 var mov_mode: bool = true # Defaults to true (WASD)
 
+@export var drawBool: bool = false # For drawing or not the 'twod_cursor()'
+
 func _ready() -> void:
 	print(". . . . . GLOBAL CURSOR AUTO-LOADED . . . . .")
 	twod_cursor_pos = get_viewport_rect().size / 2
@@ -54,23 +56,27 @@ func _unhandled_input(event: InputEvent) -> void:
 func _draw() -> void:
 	# Cleanly draws the 2D cursor only when in WASD mode
 	if mov_mode == true:
-		twod_cursor()
+		twod_cursor(drawBool)
 	
-func twod_cursor():
-	draw_arc(twod_cursor_pos, 5.0, 0, TAU, 32, Color.WHITE, 2.0)
+func twod_cursor(drawBool):
+	if drawBool == true:
+		draw_arc(twod_cursor_pos, 5.0, 0, TAU, 32, Color.WHITE, 2.0)
+	else:
+		pass
+
 
 func three3d_cursor(target_position: Vector3):
 	var camera = get_viewport().get_camera_3d()
 	if camera == null:
 		return
-		
+
 	var mouse_pos = twod_cursor_pos
 	var ray_origin = camera.project_ray_origin(mouse_pos)
 	var ray_normal = camera.project_ray_normal(mouse_pos)
-	
-	var ground_plane = Plane(Vector3.UP, target_position)
-	hit_position = ground_plane.intersects_ray(ray_origin, ray_normal)
-	
-	if hit_position != null:
-		
+
+	var ground_plane = Plane(Vector3.UP, target_position.y)
+	var result = ground_plane.intersects_ray(ray_origin, ray_normal)
+
+	if result != null:
+		hit_position = result
 		DebugDraw3D.draw_gizmo(Transform3D(Basis(), hit_position), Color.AQUA, true)

@@ -2,6 +2,8 @@ class_name Player
 extends RigidBody3D
 
 @export var mov_mode := true # 'true' for WASD, 'false' for DRAGnSHOOT
+@export var swing_ready := false
+
 @export var roll_torque: float = 2.0
 @export var smooth_speed: float = 16.0
 
@@ -30,6 +32,7 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("exit"):
 		print("QUIT ( ", get_tree().current_scene.name, " ) SCENE!")
 		get_tree().quit()
+		
 
 func _physics_process(delta: float) -> void:
 	# Divert control pipelines based on current toggle state
@@ -37,6 +40,10 @@ func _physics_process(delta: float) -> void:
 		wasd_mov(delta)
 	else:
 		dragnshoot_mov()
+		
+	# SWING READY [if velocity is <0.1 then only able to swing]
+	swing_ready = linear_velocity.length() < 0.1
+	DebugDraw2D.set_text("SWING READYYY :: " , swing_ready)
 
 func wasd_mov(delta: float) -> void:
 	# 1. Gather smoothly interpolated input axis vectors
@@ -66,10 +73,45 @@ func wasd_mov(delta: float) -> void:
 	# Debug Telemetry Outputs
 	DebugDraw2D.set_text("INPUT_DIR", input_dir)
 	DebugDraw2D.set_text("TORQUE VECTOR :", torque_vector)
-	DebugDraw3D.draw_arrow_ray(global_position, move_direction, 1.0, Color.BLUE, 0.1)
+	if move_direction != Vector3.ZERO:
+		DebugDraw3D.draw_arrow_ray(global_position, move_direction, 1.0, Color.BLUE, 0.1)
 
 func dragnshoot_mov() -> void:
+	
+	if Input.is_action_just_pressed("swing_hotkey"):
+		print("...SWING ACTIVATED...")
+	
 	if GlobalCursor.hit_position != null:
-		DebugDraw3D.draw_arrow(%CollisionShape.global_position, GlobalCursor.hit_position, Color.GOLD
+		
+		if Input.is_action_pressed("swing_hotkey"):
+			var GOLD = Color.GOLD
+			var RED = Color.RED
+			
+			if swing_ready:
+				GOLD = Color.GOLD
+				RED = Color.RED
+			else:
+				GOLD = Color.GRAY
+				RED = Color.GRAY
+				
+			var stretch_dist = %CollisionShape.global_position.distance_to(GlobalCursor.hit_position)
+			DebugDraw2D.set_text("STRETCH DISTANCE : ", stretch_dist)
+			DebugDraw3D.draw_arrow(%CollisionShape.global_position, GlobalCursor.hit_position, GOLD, 0.05)
+		
+			var potential_impulse = stretch_dist * 1.6
+			DebugDraw2D.set_text("POTENTIAL IMPULSE : ", potential_impulse)
+		
+			var impulse_dir = (%CollisionShape.global_position - GlobalCursor.hit_position).normalized()
+			DebugDraw3D.draw_ray(%CollisionShape.global_position, impulse_dir, stretch_dist, RED)
+			
+			if Input.is_action_just_pressed('swing_cancel'):
+				return #LATER FIXING THIS.... WORKING..........
+			
+			if Input.is_action_just_released("swing_drag") and swing_ready == true:
+				print("...SWING RELEASED...")
+				
+				apply_central_impulse(impulse_dir * potential_impulse)
+				
+
 	else:
 		print("hit pos NULL!")
