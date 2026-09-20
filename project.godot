@@ -15,6 +15,10 @@ run/main_scene="uid://bnxa83v2j3eny"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+GlobalCursor="*uid://cevdo81fcjeq4"
+
 [debug_draw_3d]
 
 settings/addon_root_folder="res://debug_draw_3d-1.7.3/addons/debug_draw_3d"

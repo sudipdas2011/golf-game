@@ -1,3 +1,4 @@
+class_name Player
 extends RigidBody3D
 
 @export var mov_mode := true # 'true' for WASD, 'false' for DRAGnSHOOT
@@ -68,4 +69,7 @@ func wasd_mov(delta: float) -> void:
 	DebugDraw3D.draw_arrow_ray(global_position, move_direction, 1.0, Color.BLUE, 0.1)
 
 func dragnshoot_mov() -> void:
-	pass
+	if GlobalCursor.hit_position != null:
+		DebugDraw3D.draw_arrow(%CollisionShape.global_position, GlobalCursor.hit_position, Color.GOLD
+	else:
+		print("hit pos NULL!")
