@@ -78,12 +78,13 @@ func wasd_mov(delta: float) -> void:
 
 func dragnshoot_mov() -> void:
 	
-	if Input.is_action_just_pressed("swing_hotkey"):
-		print("...SWING ACTIVATED...")
+	if Input.is_action_just_pressed("swing_hotkey") or (Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)):
+		pass #print("...SWING ACTIVATED...")
 	
 	if GlobalCursor.hit_position != null:
 		
-		if Input.is_action_pressed("swing_hotkey"):
+		if Input.is_action_just_pressed("swing_hotkey") or (Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)):
+			print("...SWING ACTIVATED...")
 			var GOLD = Color.GOLD
 			var RED = Color.RED
 			
@@ -104,8 +105,8 @@ func dragnshoot_mov() -> void:
 			var impulse_dir = (%CollisionShape.global_position - GlobalCursor.hit_position).normalized()
 			DebugDraw3D.draw_ray(%CollisionShape.global_position, impulse_dir, stretch_dist, RED)
 			
-			if Input.is_action_just_pressed('swing_cancel'):
-				return #LATER FIXING THIS.... WORKING..........
+			#if Input.is_action_just_pressed('swing_cancel'):
+				#return #LATER FIXING THIS.... WORKING..........
 			
 			if Input.is_action_just_released("swing_drag") and swing_ready == true:
 				print("...SWING RELEASED...")
