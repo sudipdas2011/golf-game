@@ -58,7 +58,7 @@ shape = SubResource("BoxShape3D_rqjnx")
 
 [node name="Mask" type="MeshInstance3D" parent="Portal2" unique_id=1009932682]
 transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0)
-layers = 2
+layers = 8
 material_override = SubResource("ShaderMaterial_teydy")
 mesh = SubResource("QuadMesh_teydy")
 
@@ -69,7 +69,7 @@ unique_name_in_owner = true
 
 [node name="RenderCam1" type="Camera3D" parent="RenderViewport1" unique_id=756147033]
 unique_name_in_owner = true
-cull_mask = 3
+cull_mask = 11
 current = true
 
 [node name="RenderViewport2" type="SubViewport" parent="." unique_id=2111951216]
@@ -77,7 +77,7 @@ unique_name_in_owner = true
 
 [node name="RenderCam2" type="Camera3D" parent="RenderViewport2" unique_id=1758384593]
 unique_name_in_owner = true
-cull_mask = 3
+cull_mask = 11
 current = true
 
 [node name="MaskViewport1" type="SubViewport" parent="." unique_id=245012084]
@@ -95,7 +95,7 @@ transparent_bg = true
 render_target_update_mode = 4
 
 [node name="MaskCam2" type="Camera3D" parent="MaskViewport2" unique_id=439670189]
-cull_mask = 3
+cull_mask = 8
 current = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=449060331]
@@ -110,8 +110,8 @@ color = Color(0, 0, 0, 1)
 
 [node name="DebugRender" type="TextureRect" parent="CanvasLayer" unique_id=1667129694]
 material = SubResource("ShaderMaterial_ekjf2")
-custom_minimum_size = Vector2(1152, 648)
-custom_maximum_size = Vector2(1152, 648)
+custom_minimum_size = Vector2(576, 324)
+custom_maximum_size = Vector2(576, 324)
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
