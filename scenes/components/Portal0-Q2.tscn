@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://cfxt8ei4tr0gd"]
+
+[ext_resource type="Script" uid="uid://coc2lxcq6tk74" path="res://scripts/PortalMaster0.gd" id="1_5seft"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_rqjnx"]
+size = Vector3(2, 1, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rqjnx"]
+size = Vector3(2, 0.1, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_teydy"]
+size = Vector2(2, 1)
+
+[node name="Portal0Q2" type="Node3D" unique_id=1285237166]
+script = ExtResource("1_5seft")
+
+[node name="Portal1" type="StaticBody3D" parent="." unique_id=845349372]
+unique_name_in_owner = true
+
+[node name="Mesh" type="MeshInstance3D" parent="Portal1" unique_id=617336030]
+transform = Transform3D(1, 0, 0, 0, 0.1, 0, 0, 0, 1, 0, 2, 0)
+mesh = SubResource("BoxMesh_rqjnx")
+
+[node name="CollShp" type="CollisionShape3D" parent="Portal1" unique_id=1801866190]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+shape = SubResource("BoxShape3D_rqjnx")
+
+[node name="Mask" type="MeshInstance3D" parent="Portal1" unique_id=1485145082]
+transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("QuadMesh_teydy")
+
+[node name="CAM1" type="Camera3D" parent="Portal1" unique_id=791852973]
+
+[node name="Portal2" type="StaticBody3D" parent="." unique_id=213543884]
+unique_name_in_owner = true
+
+[node name="Mesh" type="MeshInstance3D" parent="Portal2" unique_id=241241638]
+transform = Transform3D(1, 0, 0, 0, 0.1, 0, 0, 0, 1, 0, 2, 0)
+mesh = SubResource("BoxMesh_rqjnx")
+
+[node name="CollShp" type="CollisionShape3D" parent="Portal2" unique_id=1485387587]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+shape = SubResource("BoxShape3D_rqjnx")
+
+[node name="Mask" type="MeshInstance3D" parent="Portal2" unique_id=1009932682]
+transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("QuadMesh_teydy")
+
+[node name="CAM2" type="Camera3D" parent="Portal2" unique_id=1389852884]

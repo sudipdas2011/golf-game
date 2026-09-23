@@ -13,6 +13,10 @@ extends Node3D
 @export var camera_offset: float = 4.0 
 @export var fov_fac := 7.0
 
+@onready var camera_pos: Vector3:
+	get:
+		return %Camera3D.global_position
+
 # Node References
 @onready var SPRING_ARM: SpringArm3D = $SpringArm3D
 @onready var CAMERA := %CameraTarget
@@ -35,7 +39,7 @@ var smoothed_rot_y: float = 0.0
 
 func _ready() -> void:
 	camera_anchor_pos = CAMERA_ANCHOR.global_position
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	#Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	SPRING_ARM.spring_length = camera_offset
 
 func _input(event: InputEvent) -> void:
@@ -52,6 +56,7 @@ func _input(event: InputEvent) -> void:
 
 func _process(delta: float) -> void:
 	var proc_delta = get_process_delta_time()
+	#CAM1_pos = %Camera3D.global_position
 	
 	%Camera3D.global_position = %Camera3D.global_position.slerp( %CameraTarget.global_position, camera_smooth_speed * proc_delta )
 	
