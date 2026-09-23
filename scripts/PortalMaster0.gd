@@ -11,7 +11,8 @@ extends Node3D
 @onready var p1_mask := $Portal1/Mask
 @onready var p2_mask := $Portal2/Mask
 
-
+##############################
+##############################
 
 @onready var cam1: Camera3D = %CAM1
 @onready var cam2: Camera3D = %CAM2
@@ -25,6 +26,19 @@ extends Node3D
 var cam1_render: Texture2D
 var cam2_render: Texture2D
 
+@onready var mask_viewport1: SubViewport = $MaskViewport1
+@onready var mask_cam1: Camera3D = $MaskViewport1/MaskCam1
+
+@onready var mask_viewport2: SubViewport = $MaskViewport2
+@onready var mask_cam2: Camera3D = $MaskViewport2/MaskCam2
+
+var mask1_render: Texture2D
+var mask2_render: Texture2D
+
+@onready var debug_material: ShaderMaterial = $CanvasLayer/DebugRender.material
+
+##############################
+##############################
 
 
 var p1_pos: Vector3
@@ -49,6 +63,14 @@ func _ready() -> void:
 	#####
 	render_viewport1.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	render_viewport2.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	#####
+	mask_viewport1.world_3d = get_viewport().world_3d
+	mask_viewport1.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	mask_viewport1.transparent_bg = true
+	#####
+	mask_viewport2.world_3d = get_viewport().world_3d
+	mask_viewport2.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	mask_viewport2.transparent_bg = true
 	#####
 
 
@@ -97,6 +119,8 @@ func _process(delta: float) -> void:
 
 	# Sync render cameras AFTER portal camera transforms are updated
 	sync_render_cams()
+	sync_mask_cam1()
+	sync_mask_cam2()
 
 	# 6. Debug Visualizations	
 	DebugDraw3D.draw_position(Transform3D(Basis(), p1_left), Color.PURPLE)
@@ -123,7 +147,7 @@ func _process(delta: float) -> void:
 	# Run diagnostic print
 	_verify_camera_positions()
 
-	$CanvasLayer/DebugRender.texture = cam1_render
+	$CanvasLayer/DebugRender.texture = mask2_render
 
 
 func sync_render_cams() -> void:
@@ -156,10 +180,30 @@ func resize_viewports() -> void:
 	render_viewport1.size = screen_size
 	render_viewport2.size = screen_size
 	
+	mask_viewport1.size = screen_size
+	mask_viewport2.size = screen_size
 	
 	
+func sync_mask_cam1() -> void:
+	mask_cam1.global_transform = $Portal1/CAM1.global_transform
+	mask_cam1.fov = $Portal1/CAM1.fov
+	mask_cam1.near = $Portal1/CAM1.near
+	mask_cam1.far = $Portal1/CAM1.far
 
+	mask1_render = mask_viewport1.get_texture()
+
+
+func sync_mask_cam2() -> void:
+	mask_cam2.global_transform = $Portal1/CAM1.global_transform
+	mask_cam2.fov = $Portal1/CAM1.fov
+	mask_cam2.near = $Portal1/CAM1.near
+	mask_cam2.far = $Portal1/CAM1.far
+
+	mask2_render = mask_viewport2.get_texture()
+	
+	
 func _verify_camera_positions() -> void:
+	return
 	var dist_cam1_to_p1: float = cam1_pos.distance_to(p1_pos)
 	var dist_cam2_to_p2: float = cam2_pos.distance_to(p2_pos)
 
