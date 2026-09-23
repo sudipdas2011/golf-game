@@ -47,3 +47,35 @@ transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("QuadMesh_teydy")
 
 [node name="CAM2" type="Camera3D" parent="Portal2" unique_id=1389852884]
+
+[node name="RenderViewport1" type="SubViewport" parent="." unique_id=1755204094]
+unique_name_in_owner = true
+
+[node name="RenderCam1" type="Camera3D" parent="RenderViewport1" unique_id=756147033]
+unique_name_in_owner = true
+current = true
+
+[node name="RenderViewport2" type="SubViewport" parent="." unique_id=2111951216]
+unique_name_in_owner = true
+
+[node name="RenderCam2" type="Camera3D" parent="RenderViewport2" unique_id=1758384593]
+unique_name_in_owner = true
+current = true
+
+[node name="MaskViewport1" type="SubViewport" parent="." unique_id=245012084]
+unique_name_in_owner = true
+render_target_update_mode = 4
+
+[node name="MaskCam1" type="Camera3D" parent="MaskViewport1" unique_id=666775944]
+current = true
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=449060331]
+
+[node name="DebugRender" type="TextureRect" parent="CanvasLayer" unique_id=1667129694]
+custom_minimum_size = Vector2(400, 300)
+custom_maximum_size = Vector2(500, 400)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

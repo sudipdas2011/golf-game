@@ -6,10 +6,26 @@ extends Node3D
 #####
 
 @onready var player_cam: PlayerCamera = $PlayerCamera
-@onready var cam3d: Camera3D = %PlayerCamera/Camera3D
+@onready var cam3d: Camera3D = get_node("../PlayerCamera/Camera3D")
 
 @onready var p1_mask := $Portal1/Mask
 @onready var p2_mask := $Portal2/Mask
+
+
+
+@onready var cam1: Camera3D = %CAM1
+@onready var cam2: Camera3D = %CAM2
+
+@onready var render_viewport1: SubViewport = $RenderViewport1
+@onready var render_viewport2: SubViewport = $RenderViewport2
+
+@onready var render_cam1: Camera3D = $RenderViewport1/RenderCam1
+@onready var render_cam2: Camera3D = $RenderViewport2/RenderCam2
+
+var cam1_render: Texture2D
+var cam2_render: Texture2D
+
+
 
 var p1_pos: Vector3
 var p2_pos: Vector3
@@ -23,9 +39,24 @@ func _ready() -> void:
 	P1_rot = %Portal1.rotation
 	P2_rot = %Portal2.rotation
 	#####
+	
+	# Make the render viewports use the same 3D world as the main viewport.
+	render_viewport1.world_3d = get_viewport().world_3d
+	render_viewport2.world_3d = get_viewport().world_3d
+	
+	resize_viewports()
+	get_viewport().size_changed.connect(resize_viewports)
+	#####
+	render_viewport1.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	render_viewport2.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	#####
 
 
 func _process(delta: float) -> void:
+	
+	#DebugDraw2D.set_text("Screen Size : ", screen_size)
+
+	
 	#####
 	%Portal1.rotation = P1_rot
 	%Portal2.rotation = P2_rot
@@ -64,7 +95,10 @@ func _process(delta: float) -> void:
 	$Portal2/CAM2.global_transform = p2_mask.global_transform * local_cam
 	cam2_pos = $Portal2/CAM2.global_position
 
-	# 6. Debug Visualizations
+	# Sync render cameras AFTER portal camera transforms are updated
+	sync_render_cams()
+
+	# 6. Debug Visualizations	
 	DebugDraw3D.draw_position(Transform3D(Basis(), p1_left), Color.PURPLE)
 	DebugDraw3D.draw_position(Transform3D(Basis(), p1_right), Color.PURPLE)
 	DebugDraw3D.draw_position(Transform3D(Basis(), p1_pos), Color.WHITE)
@@ -89,6 +123,41 @@ func _process(delta: float) -> void:
 	# Run diagnostic print
 	_verify_camera_positions()
 
+	$CanvasLayer/DebugRender.texture = cam1_render
+
+
+func sync_render_cams() -> void:
+	# Sync RenderCam1 with Portal1/CAM1
+	if is_instance_valid(render_cam1):
+		render_cam1.global_transform = $Portal1/CAM1.global_transform
+		render_cam1.fov = $Portal1/CAM1.fov
+		render_cam1.near = $Portal1/CAM1.near
+		render_cam1.far = $Portal1/CAM1.far
+
+	# Sync RenderCam2 with Portal2/CAM2
+	if is_instance_valid(render_cam2):
+		render_cam2.global_transform = $Portal2/CAM2.global_transform
+		render_cam2.fov = $Portal2/CAM2.fov
+		render_cam2.near = $Portal2/CAM2.near
+		render_cam2.far = $Portal2/CAM2.far
+
+	# Get rendered textures
+	if is_instance_valid(render_viewport1):
+		cam1_render = render_viewport1.get_texture()
+	
+	if is_instance_valid(render_viewport2):
+		cam2_render = render_viewport2.get_texture()
+	
+	
+func resize_viewports() -> void:
+	var screen_size := get_viewport().get_visible_rect().size
+	print(screen_size)
+
+	render_viewport1.size = screen_size
+	render_viewport2.size = screen_size
+	
+	
+	
 
 func _verify_camera_positions() -> void:
 	var dist_cam1_to_p1: float = cam1_pos.distance_to(p1_pos)
