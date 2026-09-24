@@ -25,11 +25,18 @@ mesh = SubResource("BoxMesh_rqjnx")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 shape = SubResource("BoxShape3D_rqjnx")
 
-[node name="Mask" type="MeshInstance3D" parent="Portal1" unique_id=1485145082]
+[node name="Mask1" type="MeshInstance3D" parent="Portal1" unique_id=1485145082]
 transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("QuadMesh_teydy")
 
-[node name="CAM1" type="Camera3D" parent="Portal1" unique_id=791852973]
+[node name="Renderer1" type="SubViewport" parent="Portal1" unique_id=1863125415]
+unique_name_in_owner = true
+size = Vector2i(1152, 648)
+render_target_update_mode = 4
+
+[node name="CAM1" type="Camera3D" parent="Portal1/Renderer1" unique_id=791852973]
+unique_name_in_owner = true
+current = true
 
 [node name="Portal2" type="StaticBody3D" parent="." unique_id=213543884]
 unique_name_in_owner = true
@@ -42,8 +49,42 @@ mesh = SubResource("BoxMesh_rqjnx")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 shape = SubResource("BoxShape3D_rqjnx")
 
-[node name="Mask" type="MeshInstance3D" parent="Portal2" unique_id=1009932682]
+[node name="Mask2" type="MeshInstance3D" parent="Portal2" unique_id=1009932682]
+unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("QuadMesh_teydy")
 
-[node name="CAM2" type="Camera3D" parent="Portal2" unique_id=1389852884]
+[node name="Renderer2" type="SubViewport" parent="Portal2" unique_id=1252654722]
+unique_name_in_owner = true
+size = Vector2i(1152, 648)
+render_target_update_mode = 4
+
+[node name="CAM2" type="Camera3D" parent="Portal2/Renderer2" unique_id=1389852884]
+unique_name_in_owner = true
+current = true
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=945208612]
+
+[node name="PortalOverlay1" type="TextureRect" parent="CanvasLayer" unique_id=2138804891]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+expand_mode = 1
+stretch_mode = 6
+
+[node name="PortalOverlay2" type="TextureRect" parent="CanvasLayer" unique_id=1235442180]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+expand_mode = 1
+stretch_mode = 6

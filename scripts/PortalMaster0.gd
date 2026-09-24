@@ -8,8 +8,8 @@ extends Node3D
 @onready var player_cam: PlayerCamera = $PlayerCamera
 @onready var cam3d: Camera3D = %PlayerCamera/Camera3D
 
-@onready var p1_mask := $Portal1/Mask
-@onready var p2_mask := $Portal2/Mask
+@onready var p1_mask := $Portal1/Mask1
+@onready var p2_mask := $Portal2/Mask2
 
 var p1_pos: Vector3
 var p2_pos: Vector3
@@ -17,12 +17,68 @@ var p2_pos: Vector3
 var cam1_pos: Vector3
 var cam2_pos: Vector3
 
+####################
+####################
+
+@onready var renderer1: SubViewport = %Renderer1
+@onready var renderer2: SubViewport = %Renderer2
+
+@onready var cam1 := %CAM1
+@onready var cam2 := %CAM2
+
+@onready var cam1_render : ViewportTexture
+@onready var cam2_render : ViewportTexture
+
+@onready var overlay1 : TextureRect = %PortalOverlay1
+@onready var overlay2 : TextureRect = %PortalOverlay2
+
+#whole mask1 camera setup
+@onready var whole_mask_renderer
+#whole mask2 camera setup
+
+#occlude mask1
+#occlude mask2
+
+@onready var overlaytext1
+@onready var overlaytext2
+
+@onready var mask1 := %Mask1
+@onready var mask2 := %Mask2
+
+var mask_material: ShaderMaterial
+
+var rm : ViewportTexture
+
+####################
+####################
+
 
 func _ready() -> void:
 	#####
 	P1_rot = %Portal1.rotation
 	P2_rot = %Portal2.rotation
 	#####
+	#Prepare the protal mask material
+	mask_material = ShaderMaterial.new()
+	mask_material.shader = preload("res://shaders/portal_mask.gdshader")
+	mask2.material_overlay = mask_material
+	
+	# 2. Force the viewport background to be pure black
+	var env = cam2.environment
+	if not env:
+		env = Environment.new()
+		cam2.environment = env
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color.BLACK
+	rm = renderer2.get_texture()
+	#overlay1.texture = rm
+	
+	capture_and_store_rm()
+	
+	
+func capture_and_store_rm():
+	await RenderingServer.frame_post_draw
+	
 
 
 func _process(delta: float) -> void:
@@ -48,7 +104,7 @@ func _process(delta: float) -> void:
 
 	# 4. Get Primary Camera Position & Transform, and assign to $Portal1/CAM1
 	var cam1_transform: Transform3D = cam3d.global_transform
-	$Portal1/CAM1.global_transform = cam1_transform
+	%CAM1.global_transform = cam1_transform
 	cam1_pos = cam1_transform.origin
 	
 
@@ -61,8 +117,8 @@ func _process(delta: float) -> void:
 	local_cam.basis = local_cam.basis.rotated(Vector3.UP, PI)
 
 	# Apply to Portal 2 and update CAM2 node
-	$Portal2/CAM2.global_transform = p2_mask.global_transform * local_cam
-	cam2_pos = $Portal2/CAM2.global_position
+	%CAM2.global_transform = p2_mask.global_transform * local_cam
+	cam2_pos = %CAM2.global_position
 
 	# 6. Debug Visualizations
 	DebugDraw3D.draw_position(Transform3D(Basis(), p1_left), Color.PURPLE)
@@ -78,7 +134,7 @@ func _process(delta: float) -> void:
 
 	# 7. Draw Top-Down Directional Arrows for Cameras
 	var cam1_dir: Vector3 = -cam1_transform.basis.z * 3.0
-	var cam2_dir: Vector3 = -$Portal2/CAM2.global_transform.basis.z * 3.0
+	var cam2_dir: Vector3 = -%CAM2.global_transform.basis.z * 3.0
 
 	#DebugDraw3D.draw_arrow(cam1_pos, cam1_pos + cam1_dir, Color.GOLD, 0.4)
 	#DebugDraw3D.draw_arrow(cam2_pos, cam2_pos + cam2_dir, Color.GOLD, 0.4)
@@ -88,9 +144,21 @@ func _process(delta: float) -> void:
 	
 	# Run diagnostic print
 	_verify_camera_positions()
+	projection()
+	
+	
+func projection():
+	#Wait for frame to finish
+	await RenderingServer.frame_post_draw
+	#get renders
+	cam1_render = renderer1.get_texture()
+	cam2_render = renderer2.get_texture()
+	#set render to textureRect
+	overlay1.texture = rm
 
 
 func _verify_camera_positions() -> void:
+	return
 	var dist_cam1_to_p1: float = cam1_pos.distance_to(p1_pos)
 	var dist_cam2_to_p2: float = cam2_pos.distance_to(p2_pos)
 
