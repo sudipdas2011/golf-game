@@ -15,7 +15,7 @@ var cam3d: Camera3D = null
 var p1_pos: Vector3
 var p2_pos: Vector3
 
-# Dynamic Viewport Cameras (These will move to Front OR Back automatically)
+# Dynamic Viewport Cameras
 @onready var renderer1: SubViewport = %Renderer1 if has_node("%Renderer1") else null
 @onready var renderer2: SubViewport = %Renderer2 if has_node("%Renderer2") else null
 
@@ -30,7 +30,6 @@ var portal_material_2 : ShaderMaterial
 var spatial_portal_shader = preload("res://shaders/portal_spatial.gdshader")
 
 func _ready() -> void:
-	# Set rotations if nodes exist
 	if has_node("%Portal1"): %Portal1.rotation = P1_rot
 	if has_node("%Portal2"): %Portal2.rotation = P2_rot
 	
@@ -42,39 +41,29 @@ func _ready() -> void:
 	else:
 		cam3d = get_tree().get_first_node_in_group("player_camera") as Camera3D
 	
-	# 2. Setup Layer 20 Isolation (The "Invisible" Layer)
-	# This hides the white portal sheets from the main camera so they don't block the view
-	# BUT we keep them visible to the shader logic.
-	
-	# Actually, for Spatial Shaders, we usually WANT the main camera to see Layer 20
-	# so it can render the shader surface.
+	# 2. Setup Layer 20 Isolation
 	if mask1: 
-		mask1.layers = 1 << 19 # Layer 20
-		# Disable shadows on the portal mesh to prevent weird self-shadowing on the back
+		mask1.layers = 1 << 19 
 		mask1.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		
 	if mask2: 
-		mask2.layers = 1 << 19 # Layer 20
+		mask2.layers = 1 << 19 
 		mask2.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	
-	# Main Camera MUST see Layer 20 to render the portal surface
 	if cam3d:
 		cam3d.cull_mask = cam3d.cull_mask | (1 << 19)
 	
-	# 3. Setup Portal Cameras (The "Eyes")
-	# These cameras must NOT see Layer 20 (The Portal Frames) to prevent "Hall of Mirrors"
+	# 3. Setup Portal Cameras (Hide Portal Frames)
 	for camera_node in [cam1, cam2]:
 		if camera_node:
 			camera_node.cull_mask = camera_node.cull_mask & ~(1 << 19)
-			
 			var env = camera_node.environment
 			if not env:
 				env = Environment.new()
 				camera_node.environment = env
 			env.background_mode = Environment.BG_COLOR
-			env.background_color = Color.BLACK
+			env.background_color = Color(0.0, 0.0, 0.0, 0.0)
 
-	# 4. Create & Assign Materials
+	# 4. Create Materials
 	portal_material_1 = ShaderMaterial.new()
 	portal_material_1.shader = spatial_portal_shader
 	
@@ -84,9 +73,9 @@ func _ready() -> void:
 	if mask1: mask1.material_override = portal_material_1
 	if mask2: mask2.material_override = portal_material_2
 	
-	# 5. Force Always Update
-	if renderer1: renderer1.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	if renderer2: renderer2.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	# 5. Disable Auto-Update for Manual Recursion Control
+	if renderer1: renderer1.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	if renderer2: renderer2.render_target_update_mode = SubViewport.UPDATE_DISABLED
 
 
 func _process(delta: float) -> void:
@@ -98,56 +87,80 @@ func _process(delta: float) -> void:
 	if has_node("%Portal1"): %Portal1.rotation = P1_rot
 	if has_node("%Portal2"): %Portal2.rotation = P2_rot
 	
-	var main_cam_transform: Transform3D = cam3d.global_transform
-
 	# =================================================================
-	# DOUBLE-SIDED MATRIX TRACKING SYSTEM
+	# 7. DEBUG DRAW - SIDE VISUALIZATION
 	# =================================================================
-	# This math calculates the relative position of the player to Portal 1.
-	# If the player is BEHIND Portal 1, 'local_cam1' naturally reflects that (negative Z).
-	# When applied to Portal 2, the camera ('cam2') automatically moves BEHIND Portal 2.
-	# This allows you to look through the "back" of the portal without extra cameras!
+	# NOTE: Requires your DebugDraw3D class to be present in the project
 	
-	# --- Update CAM2 (The eye for Portal 1) ---
-	var local_cam1: Transform3D = p1_mask.global_transform.affine_inverse() * main_cam_transform
+	# --- Draw Portal 1 Orientation ---
+	var p1_origin = p1_mask.global_position
+	var p1_z_plus = p1_mask.global_transform.basis.z # Local +Z
+	var p1_z_minus = -p1_mask.global_transform.basis.z # Local -Z
+	var p1_up = p1_mask.global_transform.basis.y # Local +Y
 	
-	# Standard Portal Flip Logic (Rotate 180 degrees)
-	local_cam1.origin.x = -local_cam1.origin.x
-	local_cam1.origin.z = -local_cam1.origin.z
-	local_cam1.basis = local_cam1.basis.rotated(Vector3.UP, PI)
-	
-	if cam2:
-		# Apply this relative offset to Portal 2
-		cam2.global_transform = p2_mask.global_transform * local_cam1
-		
-		# NEAR CLIP PLANE FIX:
-		# If the camera gets too close to the portal surface, it might clip.
-		# A small offset or oblique plane helps, but for now we rely on the shader depth.
+	# BLUE = +Z Side (Check if this is your "Front")
+	DebugDraw3D.draw_arrow(p1_origin, p1_origin + p1_z_plus * 2.0, Color.BLUE, 0.1)
+	# RED = -Z Side (Check if this is your "Back")
+	DebugDraw3D.draw_arrow(p1_origin, p1_origin + p1_z_minus * 2.0, Color.RED, 0.1)
+	# YELLOW = UP (Check if portal is upside down)
+	DebugDraw3D.draw_arrow(p1_origin, p1_origin + p1_up * 1.5, Color.YELLOW, 0.1)
 
-	# --- Update CAM1 (The eye for Portal 2) ---
-	var local_cam2: Transform3D = p2_mask.global_transform.affine_inverse() * main_cam_transform
+	# --- Draw Portal 2 Orientation ---
+	var p2_origin = p2_mask.global_position
+	var p2_z_plus = p2_mask.global_transform.basis.z
+	var p2_z_minus = -p2_mask.global_transform.basis.z
+	var p2_up = p2_mask.global_transform.basis.y
 	
-	local_cam2.origin.x = -local_cam2.origin.x
-	local_cam2.origin.z = -local_cam2.origin.z
-	local_cam2.basis = local_cam2.basis.rotated(Vector3.UP, PI)
-	
-	if cam1:
-		cam1.global_transform = p1_mask.global_transform * local_cam2
-		
+	DebugDraw3D.draw_arrow(p2_origin, p2_origin + p2_z_plus * 2.0, Color.BLUE, 0.1)
+	DebugDraw3D.draw_arrow(p2_origin, p2_origin + p2_z_minus * 2.0, Color.RED, 0.1)
+	DebugDraw3D.draw_arrow(p2_origin, p2_origin + p2_up * 1.5, Color.YELLOW, 0.1)
+
 	projection()
-	
-	
+
+
 func projection() -> void:
+	if not cam3d or not cam1 or not cam2 or not renderer1 or not renderer2:
+		return
+		
 	# Resolution Sync
 	var window_size = get_viewport().get_visible_rect().size
 	var target_res = Vector2i(window_size)
-	
-	if renderer1 and renderer1.size != target_res: renderer1.size = target_res
-	if renderer2 and renderer2.size != target_res: renderer2.size = target_res
+	if renderer1.size != target_res: renderer1.size = target_res
+	if renderer2.size != target_res: renderer2.size = target_res
 
-	# Texture Linking
-	if portal_material_1 and renderer2:
-		portal_material_1.set_shader_parameter("portal_texture", renderer2.get_texture())
-		
-	if portal_material_2 and renderer1:
-		portal_material_2.set_shader_parameter("portal_texture", renderer1.get_texture())
+	portal_material_1.set_shader_parameter("portal_texture", renderer2.get_texture())
+	portal_material_2.set_shader_parameter("portal_texture", renderer1.get_texture())
+
+	var main_cam_transform: Transform3D = cam3d.global_transform
+
+	# --- RECURSIVE BOUNCE 1 ---
+	_update_portal_camera_transforms(main_cam_transform)
+	renderer1.render_target_update_mode = SubViewport.UPDATE_ONCE
+	renderer2.render_target_update_mode = SubViewport.UPDATE_ONCE
+	await RenderingServer.frame_post_draw
+
+	# --- RECURSIVE BOUNCE 2 ---
+	_update_portal_camera_transforms(main_cam_transform)
+	renderer1.render_target_update_mode = SubViewport.UPDATE_ONCE
+	renderer2.render_target_update_mode = SubViewport.UPDATE_ONCE
+	await RenderingServer.frame_post_draw
+
+	# --- RECURSIVE BOUNCE 3 ---
+	_update_portal_camera_transforms(main_cam_transform)
+	renderer1.render_target_update_mode = SubViewport.UPDATE_ONCE
+	renderer2.render_target_update_mode = SubViewport.UPDATE_ONCE
+
+
+func _update_portal_camera_transforms(main_cam_transform: Transform3D) -> void:
+	# Bidirectional Symmetrical Matrix Tracking
+	var local_cam1: Transform3D = p1_mask.global_transform.affine_inverse() * main_cam_transform
+	local_cam1.origin.x = -local_cam1.origin.x
+	local_cam1.origin.z = -local_cam1.origin.z
+	local_cam1.basis = local_cam1.basis.rotated(Vector3.UP, PI)
+	if cam2: cam2.global_transform = p2_mask.global_transform * local_cam1
+
+	var local_cam2: Transform3D = p2_mask.global_transform.affine_inverse() * main_cam_transform
+	local_cam2.origin.x = -local_cam2.origin.x
+	local_cam2.origin.z = -local_cam2.origin.z
+	local_cam2.basis = local_cam2.basis.rotated(Vector3.UP, PI)
+	if cam1: cam1.global_transform = p1_mask.global_transform * local_cam2
