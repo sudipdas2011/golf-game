@@ -39,7 +39,7 @@ var smoothed_rot_y: float = 0.0
 
 func _ready() -> void:
 	camera_anchor_pos = CAMERA_ANCHOR.global_position
-	#Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	SPRING_ARM.spring_length = camera_offset
 
 func _input(event: InputEvent) -> void:
