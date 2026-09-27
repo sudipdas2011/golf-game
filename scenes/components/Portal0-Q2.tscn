@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cfxt8ei4tr0gd"]
 
 [ext_resource type="Script" uid="uid://coc2lxcq6tk74" path="res://scripts/PortalMaster0.gd" id="1_5seft"]
+[ext_resource type="Script" uid="uid://clr8iuicednco" path="res://scripts/TeleportManager.gd" id="2_b8k7s"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_rqjnx"]
 size = Vector3(2, 1, 1)
@@ -9,7 +10,9 @@ size = Vector3(2, 1, 1)
 size = Vector3(2, 0.1, 1)
 
 [sub_resource type="QuadMesh" id="QuadMesh_teydy"]
-size = Vector2(2, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_u7opa"]
+size = Vector3(2, 2, 0.5)
 
 [node name="Portal0Q2" type="Node3D" unique_id=1285237166]
 script = ExtResource("1_5seft")
@@ -27,7 +30,7 @@ shape = SubResource("BoxShape3D_rqjnx")
 
 [node name="Mask1" type="MeshInstance3D" parent="Portal1" unique_id=1485145082]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0)
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("QuadMesh_teydy")
 
 [node name="Renderer1" type="SubViewport" parent="Portal1" unique_id=1863125415]
@@ -38,6 +41,26 @@ render_target_update_mode = 4
 [node name="CAM1" type="Camera3D" parent="Portal1/Renderer1" unique_id=791852973]
 unique_name_in_owner = true
 current = true
+
+[node name="Area1" type="Area3D" parent="Portal1" unique_id=483083969]
+unique_name_in_owner = true
+transform = Transform3D(0.91891617, 0, 0.39445296, 0, 1, 0, -0.39445296, 0, 0.91891617, 0, 1, 0.025)
+collision_mask = 31
+
+[node name="CollShape1" type="CollisionShape3D" parent="Portal1/Area1" unique_id=283666781]
+unique_name_in_owner = true
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 0, 0)
+shape = SubResource("BoxShape3D_u7opa")
+
+[node name="Area12" type="Area3D" parent="Portal1" unique_id=1831826484]
+unique_name_in_owner = true
+transform = Transform3D(0.91891617, 0, 0.39445296, 0, 1, 0, -0.39445296, 0, 0.91891617, 0, 1, 0.025)
+collision_mask = 31
+
+[node name="CollShape12" type="CollisionShape3D" parent="Portal1/Area12" unique_id=832693334]
+unique_name_in_owner = true
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 0, 0)
+shape = SubResource("BoxShape3D_u7opa")
 
 [node name="Portal2" type="StaticBody3D" parent="." unique_id=213543884]
 unique_name_in_owner = true
@@ -52,7 +75,7 @@ shape = SubResource("BoxShape3D_rqjnx")
 
 [node name="Mask2" type="MeshInstance3D" parent="Portal2" unique_id=1009932682]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0)
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("QuadMesh_teydy")
 
 [node name="Renderer2" type="SubViewport" parent="Portal2" unique_id=1252654722]
@@ -64,11 +87,30 @@ render_target_update_mode = 4
 unique_name_in_owner = true
 current = true
 
+[node name="Area2" type="Area3D" parent="Portal2" unique_id=619361115]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.025)
+collision_mask = 31
+
+[node name="CollShape2" type="CollisionShape3D" parent="Portal2/Area2" unique_id=516958380]
+unique_name_in_owner = true
+shape = SubResource("BoxShape3D_u7opa")
+
+[node name="Area22" type="Area3D" parent="Portal2" unique_id=1022325320]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.025)
+collision_mask = 31
+
+[node name="CollShape22" type="CollisionShape3D" parent="Portal2/Area22" unique_id=1843975771]
+unique_name_in_owner = true
+shape = SubResource("BoxShape3D_u7opa")
+
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=945208612]
 visible = false
 
 [node name="PortalOverlay1" type="TextureRect" parent="CanvasLayer" unique_id=2138804891]
 unique_name_in_owner = true
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -81,6 +123,7 @@ stretch_mode = 5
 
 [node name="PortalOverlay2" type="TextureRect" parent="CanvasLayer" unique_id=1235442180]
 unique_name_in_owner = true
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -90,3 +133,10 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 expand_mode = 1
 stretch_mode = 5
+
+[node name="TeleportManager" type="Control" parent="." unique_id=1300589992]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_b8k7s")

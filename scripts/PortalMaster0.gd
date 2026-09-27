@@ -1,10 +1,5 @@
 extends Node3D
 
-#####
-@export var P1_rot : Vector3
-@export var P2_rot : Vector3
-#####
-
 var player_cam: Node3D = null
 var cam3d: Camera3D = null
 
@@ -30,9 +25,6 @@ var portal_material_2 : ShaderMaterial
 var spatial_portal_shader = preload("res://shaders/portal_spatial.gdshader")
 
 func _ready() -> void:
-	if has_node("%Portal1"): %Portal1.rotation = P1_rot
-	if has_node("%Portal2"): %Portal2.rotation = P2_rot
-	
 	# 1. Grab Player Camera
 	var current_view = get_viewport().get_camera_3d()
 	if current_view:
@@ -83,29 +75,22 @@ func _process(delta: float) -> void:
 		var current_view = get_viewport().get_camera_3d()
 		if current_view: cam3d = current_view
 		return
-		
-	if has_node("%Portal1"): %Portal1.rotation = P1_rot
-	if has_node("%Portal2"): %Portal2.rotation = P2_rot
 	
 	# =================================================================
-	# 7. DEBUG DRAW - SIDE VISUALIZATION
+	# FIXED: HARDCODED SNAP-ROTATION LOCKS REMOVED ENTIRELY
 	# =================================================================
-	# NOTE: Requires your DebugDraw3D class to be present in the project
 	
-	# --- Draw Portal 1 Orientation ---
+	# --- Draw Portal 1 Orientation Vectors ---
 	var p1_origin = p1_mask.global_position
-	var p1_z_plus = p1_mask.global_transform.basis.z # Local +Z
-	var p1_z_minus = -p1_mask.global_transform.basis.z # Local -Z
-	var p1_up = p1_mask.global_transform.basis.y # Local +Y
+	var p1_z_plus = p1_mask.global_transform.basis.z 
+	var p1_z_minus = -p1_mask.global_transform.basis.z 
+	var p1_up = p1_mask.global_transform.basis.y 
 	
-	# BLUE = +Z Side (Check if this is your "Front")
 	DebugDraw3D.draw_arrow(p1_origin, p1_origin + p1_z_plus * 2.0, Color.BLUE, 0.1)
-	# RED = -Z Side (Check if this is your "Back")
 	DebugDraw3D.draw_arrow(p1_origin, p1_origin + p1_z_minus * 2.0, Color.RED, 0.1)
-	# YELLOW = UP (Check if portal is upside down)
 	DebugDraw3D.draw_arrow(p1_origin, p1_origin + p1_up * 1.5, Color.YELLOW, 0.1)
 
-	# --- Draw Portal 2 Orientation ---
+	# --- Draw Portal 2 Orientation Vectors ---
 	var p2_origin = p2_mask.global_position
 	var p2_z_plus = p2_mask.global_transform.basis.z
 	var p2_z_minus = -p2_mask.global_transform.basis.z
@@ -138,6 +123,12 @@ func projection() -> void:
 	renderer1.render_target_update_mode = SubViewport.UPDATE_ONCE
 	renderer2.render_target_update_mode = SubViewport.UPDATE_ONCE
 	await RenderingServer.frame_post_draw
+	
+	# --- RECURSIVE BOUNCE 1 ---
+	_update_portal_camera_transforms(main_cam_transform)
+	renderer1.render_target_update_mode = SubViewport.UPDATE_ONCE
+	renderer2.render_target_update_mode = SubViewport.UPDATE_ONCE
+	await RenderingServer.frame_post_draw
 
 	# --- RECURSIVE BOUNCE 2 ---
 	_update_portal_camera_transforms(main_cam_transform)
@@ -152,15 +143,24 @@ func projection() -> void:
 
 
 func _update_portal_camera_transforms(main_cam_transform: Transform3D) -> void:
-	# Bidirectional Symmetrical Matrix Tracking
-	var local_cam1: Transform3D = p1_mask.global_transform.affine_inverse() * main_cam_transform
-	local_cam1.origin.x = -local_cam1.origin.x
-	local_cam1.origin.z = -local_cam1.origin.z
-	local_cam1.basis = local_cam1.basis.rotated(Vector3.UP, PI)
-	if cam2: cam2.global_transform = p2_mask.global_transform * local_cam1
+	if not p1_mask or not p2_mask: return
+	
+	# =================================================================
+	# DYNAMIC DUAL-SURFACE REFLECTION LOGIC (Handles Any Rotation angle)
+	# =================================================================
+	# Construct our local mirroring flip operator matrix
+	var flip_matrix = Transform3D.IDENTITY
+	flip_matrix.basis.x = -flip_matrix.basis.x
+	flip_matrix.basis.z = -flip_matrix.basis.z
 
-	var local_cam2: Transform3D = p2_mask.global_transform.affine_inverse() * main_cam_transform
-	local_cam2.origin.x = -local_cam2.origin.x
-	local_cam2.origin.z = -local_cam2.origin.z
-	local_cam2.basis = local_cam2.basis.rotated(Vector3.UP, PI)
-	if cam1: cam1.global_transform = p1_mask.global_transform * local_cam2
+	# --- Update CAM2 (Tracks Portal 1 Input -> Displays on Portal 2) ---
+	var p1_local_cam = p1_mask.global_transform.affine_inverse() * main_cam_transform
+	p1_local_cam = flip_matrix * p1_local_cam
+	if cam2:
+		cam2.global_transform = p2_mask.global_transform * p1_local_cam
+
+	# --- Update CAM1 (Tracks Portal 2 Input -> Displays on Portal 1) ---
+	var p2_local_cam = p2_mask.global_transform.affine_inverse() * main_cam_transform
+	p2_local_cam = flip_matrix * p2_local_cam
+	if cam1:
+		cam1.global_transform = p1_mask.global_transform * p2_local_cam

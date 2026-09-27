@@ -21,7 +21,7 @@ extends Node3D
 @onready var SPRING_ARM: SpringArm3D = $SpringArm3D
 @onready var CAMERA := %CameraTarget
 @onready var CAMERA_ANCHOR := get_node("../PlayerMain/CameraAnchor")
-@onready var PLAYER := get_node("../PlayerMain/Mesh")
+@onready var PLAYER := get_node("../PlayerMain/CollisionShape")
 @onready var PLAYERx := get_node("../PlayerMain")
 
 

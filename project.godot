@@ -13,7 +13,9 @@ config_version=5
 config/name="Golf Game"
 run/main_scene="uid://bnxa83v2j3eny"
 config/features=PackedStringArray("4.7", "Mobile")
-config/icon="res://icon.svg"
+boot_splash/bg_color=Color(0, 0.79575425, 0.9267971, 1)
+boot_splash/image="uid://dfxdovhvj8vmm"
+config/icon="uid://dfxdovhvj8vmm"
 
 [autoload]
 
@@ -27,6 +29,10 @@ settings/addon_root_folder="res://debug_draw_3d-1.7.3/addons/debug_draw_3d"
 
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[global_group]
+
+SceneObject="anything in the scene like terrain"
 
 [input]
 
