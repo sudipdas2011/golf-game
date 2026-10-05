@@ -11,7 +11,7 @@ extends Node3D
 # Camera Parameters
 @export var camera_range := 1.0
 @export var camera_offset: float = 4.0 
-@export var fov_fac := 7.0
+const fov_fac := 7.0
 
 @onready var camera_pos: Vector3:
 	get:

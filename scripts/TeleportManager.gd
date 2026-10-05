@@ -1,6 +1,7 @@
 @tool
 extends Control
 
+
 var primary_portal : bool #true for 1 and false for 2
 @onready var portal1_ref := %Mask1
 @onready var portal2_ref := %Mask2
@@ -89,42 +90,18 @@ func _physics_process(delta: float) -> void:
 	area22.global_position = portal2_ref.global_position + backward_offset2
 	
 	# Draw Gizmos
-	DebugDraw3D.draw_gizmo(Transform3D(Basis(), area1.global_position))
-	DebugDraw3D.draw_gizmo(Transform3D(Basis(), area2.global_position))
-	DebugDraw3D.draw_gizmo(Transform3D(Basis(), area12.global_position))
-	DebugDraw3D.draw_gizmo(Transform3D(Basis(), area22.global_position))
+	#DebugDraw3D.draw_gizmo(Transform3D(Basis(), area1.global_position))
+	#DebugDraw3D.draw_gizmo(Transform3D(Basis(), area2.global_position))
+	#DebugDraw3D.draw_gizmo(Transform3D(Basis(), area12.global_position))
+	#DebugDraw3D.draw_gizmo(Transform3D(Basis(), area22.global_position))
 	
 	# Debug 1 (Front Side Shapes)
-	DebugDraw3D.draw_box(
-		collshape1.global_position,
-		collshape1.global_basis.get_rotation_quaternion(),
-		collshape1.shape.size,
-		Color.RED,
-		true
-	)
-	DebugDraw3D.draw_box(
-		collshape2.global_position,
-		collshape2.global_basis.get_rotation_quaternion(),
-		collshape2.shape.size,
-		Color.RED,
-		true
-	)
+	DebugDraw3D.draw_box(collshape1.global_position, collshape1.global_basis.get_rotation_quaternion(), collshape1.shape.size, Color.RED, true )
+	DebugDraw3D.draw_box(collshape2.global_position, collshape2.global_basis.get_rotation_quaternion(), collshape2.shape.size, Color.RED, true )
 	
 	# Debug 2 (Back Side Shapes)
-	DebugDraw3D.draw_box(
-		collshape12.global_position,
-		collshape12.global_transform.basis.get_rotation_quaternion(),
-		collshape12.shape.size,
-		Color.BLUE,
-		true
-	)
-	DebugDraw3D.draw_box(
-		collshape22.global_position,
-		collshape22.global_basis.get_rotation_quaternion(),
-		collshape22.shape.size,
-		Color.BLUE,
-		true
-	)
+	DebugDraw3D.draw_box(collshape12.global_position, collshape12.global_transform.basis.get_rotation_quaternion(), collshape12.shape.size, Color.BLUE, true )
+	DebugDraw3D.draw_box(collshape22.global_position, collshape22.global_basis.get_rotation_quaternion(), collshape22.shape.size, Color.BLUE, true )
 
 	# Collision detection with areas
 	get_area_collision(area1, scene_object_group)

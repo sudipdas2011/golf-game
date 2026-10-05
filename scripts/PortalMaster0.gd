@@ -1,158 +1,287 @@
 extends Node3D
 
-var player_cam: Node3D = null
+
+# ============================================================
+# MAIN CAMERA
+# ============================================================
+
 var cam3d: Camera3D = null
 
-# Safe Node Fetching
-@onready var p1_mask := $Portal1/Mask1 if has_node("Portal1/Mask1") else null
-@onready var p2_mask := $Portal2/Mask2 if has_node("Portal2/Mask2") else null
 
-var p1_pos: Vector3
-var p2_pos: Vector3
+# ============================================================
+# PORTAL GEOMETRY
+# ============================================================
 
-# Dynamic Viewport Cameras
-@onready var renderer1: SubViewport = %Renderer1 if has_node("%Renderer1") else null
-@onready var renderer2: SubViewport = %Renderer2 if has_node("%Renderer2") else null
+@onready var p1_mask = get_node_or_null("Portal1/Mask1")
+@onready var p2_mask = get_node_or_null("Portal2/Mask2")
 
-@onready var cam1 := %CAM1 if has_node("%CAM1") else null
-@onready var cam2 := %CAM2 if has_node("%CAM2") else null
+@onready var mask1 = get_node_or_null("%Mask1")
+@onready var mask2 = get_node_or_null("%Mask2")
 
-@onready var mask1 := %Mask1 if has_node("%Mask1") else ($Portal1/Mask1 if has_node("Portal1/Mask1") else null)
-@onready var mask2 := %Mask2 if has_node("%Mask2") else ($Portal2/Mask2 if has_node("Portal2/Mask2") else null)
 
-var portal_material_1 : ShaderMaterial
-var portal_material_2 : ShaderMaterial
-var spatial_portal_shader = preload("res://shaders/portal_spatial.gdshader")
+# ============================================================
+# PORTAL CAMERAS
+# ============================================================
+
+@onready var cam1: Camera3D = get_node_or_null("%CAM1") as Camera3D
+@onready var cam2: Camera3D = get_node_or_null("%CAM2") as Camera3D
+
+
+# ============================================================
+# PORTAL VIEWPORTS
+# ============================================================
+
+@onready var renderer1: SubViewport = get_node_or_null("%Renderer1") as SubViewport
+@onready var renderer2: SubViewport = get_node_or_null("%Renderer2") as SubViewport
+
+
+# ============================================================
+# MATERIALS
+# ============================================================
+
+var portal_material_1: ShaderMaterial
+var portal_material_2: ShaderMaterial
+
+var spatial_portal_shader = preload(
+	"res://shaders/portal_spatial.gdshader"
+)
+
+
+# ============================================================
+# CONSTANTS
+# ============================================================
+
+const PORTAL_LAYER := 1 << 19
+
 
 func _ready() -> void:
-	# 1. Grab Player Camera
-	var current_view = get_viewport().get_camera_3d()
-	if current_view:
-		cam3d = current_view
-		player_cam = cam3d.get_parent()
-	else:
-		cam3d = get_tree().get_first_node_in_group("player_camera") as Camera3D
-	
-	# 2. Setup Layer 20 Isolation
-	if mask1: 
-		mask1.layers = 1 << 19 
-		mask1.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	if mask2: 
-		mask2.layers = 1 << 19 
-		mask2.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	
-	if cam3d:
-		cam3d.cull_mask = cam3d.cull_mask | (1 << 19)
-	
-	# 3. Setup Portal Cameras (Hide Portal Frames)
-	for camera_node in [cam1, cam2]:
-		if camera_node:
-			camera_node.cull_mask = camera_node.cull_mask & ~(1 << 19)
-			var env = camera_node.environment
-			if not env:
-				env = Environment.new()
-				camera_node.environment = env
-			env.background_mode = Environment.BG_COLOR
-			env.background_color = Color(0.0, 0.0, 0.0, 0.0)
 
-	# 4. Create Materials
+	# Run portal update AFTER the normal camera/player processing.
+	#
+	# Lower process priority executes first.
+	# High priority here means we sample the camera after
+	# its smoothing / FOV responsiveness has finished.
+	process_priority = 1000
+
+
+	# ========================================================
+	# FIND ACTIVE CAMERA
+	# ========================================================
+
+	_resolve_main_camera()
+
+
+	# ========================================================
+	# PORTAL MASK LAYER
+	# ========================================================
+
+	if mask1:
+		mask1.layers = PORTAL_LAYER
+		mask1.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+	if mask2:
+		mask2.layers = PORTAL_LAYER
+		mask2.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+
+	# Main camera MUST be able to see the portal surfaces.
+
+	if cam3d:
+		cam3d.cull_mask |= PORTAL_LAYER
+
+
+	# ========================================================
+	# PORTAL CAMERAS
+	# ========================================================
+
+	_configure_portal_camera(cam1)
+	_configure_portal_camera(cam2)
+
+
+	# ========================================================
+	# MATERIALS
+	# ========================================================
+
 	portal_material_1 = ShaderMaterial.new()
 	portal_material_1.shader = spatial_portal_shader
-	
+
 	portal_material_2 = ShaderMaterial.new()
 	portal_material_2.shader = spatial_portal_shader
-	
-	if mask1: mask1.material_override = portal_material_1
-	if mask2: mask2.material_override = portal_material_2
-	
-	# 5. Disable Auto-Update for Manual Recursion Control
-	if renderer1: renderer1.render_target_update_mode = SubViewport.UPDATE_DISABLED
-	if renderer2: renderer2.render_target_update_mode = SubViewport.UPDATE_DISABLED
 
 
-func _process(delta: float) -> void:
-	if not cam3d or not p1_mask or not p2_mask:
-		var current_view = get_viewport().get_camera_3d()
-		if current_view: cam3d = current_view
+	if mask1:
+		mask1.material_override = portal_material_1
+
+	if mask2:
+		mask2.material_override = portal_material_2
+
+
+	# ========================================================
+	# MANUAL RENDERING
+	# ========================================================
+
+	if renderer1:
+		renderer1.render_target_update_mode = SubViewport.UPDATE_DISABLED
+
+	if renderer2:
+		renderer2.render_target_update_mode = SubViewport.UPDATE_DISABLED
+
+
+	# Make both portal viewports render the same world.
+
+	var main_viewport := get_viewport()
+
+	if main_viewport.world_3d:
+		if renderer1:
+			renderer1.world_3d = main_viewport.world_3d
+
+		if renderer2:
+			renderer2.world_3d = main_viewport.world_3d
+
+
+	_sync_viewport_size()
+
+
+func _configure_portal_camera(camera: Camera3D) -> void:
+	#var env: Environment = camera_node.environment
+
+	if not camera:
 		return
-	
-	# =================================================================
-	# FIXED: HARDCODED SNAP-ROTATION LOCKS REMOVED ENTIRELY
-	# =================================================================
-	
-	# --- Draw Portal 1 Orientation Vectors ---
-	var p1_origin = p1_mask.global_position
-	var p1_z_plus = p1_mask.global_transform.basis.z 
-	var p1_z_minus = -p1_mask.global_transform.basis.z 
-	var p1_up = p1_mask.global_transform.basis.y 
-	
-	DebugDraw3D.draw_arrow(p1_origin, p1_origin + p1_z_plus * 2.0, Color.BLUE, 0.1)
-	DebugDraw3D.draw_arrow(p1_origin, p1_origin + p1_z_minus * 2.0, Color.RED, 0.1)
-	DebugDraw3D.draw_arrow(p1_origin, p1_origin + p1_up * 1.5, Color.YELLOW, 0.1)
 
-	# --- Draw Portal 2 Orientation Vectors ---
-	var p2_origin = p2_mask.global_position
-	var p2_z_plus = p2_mask.global_transform.basis.z
-	var p2_z_minus = -p2_mask.global_transform.basis.z
-	var p2_up = p2_mask.global_transform.basis.y
-	
-	DebugDraw3D.draw_arrow(p2_origin, p2_origin + p2_z_plus * 2.0, Color.BLUE, 0.1)
-	DebugDraw3D.draw_arrow(p2_origin, p2_origin + p2_z_minus * 2.0, Color.RED, 0.1)
-	DebugDraw3D.draw_arrow(p2_origin, p2_origin + p2_up * 1.5, Color.YELLOW, 0.1)
+	# Portal cameras must NOT see the portal masks themselves.
+	camera.cull_mask &= ~PORTAL_LAYER
+
+	# Transparent background.
+	var env: Environment = camera.environment
+
+	if not env:
+		env = Environment.new()
+		camera.environment = env
+
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color(0.0, 0.0, 0.0, 0.0)
+
+
+func _resolve_main_camera() -> void:
+
+	var active_camera := get_viewport().get_camera_3d()
+
+	if active_camera:
+		cam3d = active_camera
+
+
+func _process(_delta: float) -> void:
+
+	# --------------------------------------------------------
+	# Always re-check the active camera.
+	# Useful if cameras are switched during gameplay.
+	# --------------------------------------------------------
+
+	_resolve_main_camera()
+
+	if not cam3d:
+		return
+
+	if not p1_mask or not p2_mask:
+		return
+
+	if not cam1 or not cam2:
+		return
+
+	if not renderer1 or not renderer2:
+		return
+		
+	var p1_origin: Vector3 = p1_mask.global_position
+	var p1_basis: Basis = p1_mask.global_transform.basis
+	var p2_origin: Vector3 = p2_mask.global_position
+	var p2_basis: Basis = p2_mask.global_transform.basis
+
+	DebugDraw3D.draw_arrow(p1_origin, p1_origin + p1_basis.z * 2.0, Color.DEEP_SKY_BLUE, 0.1)
+	DebugDraw3D.draw_arrow(p1_origin, p1_origin - p1_basis.z * 2.0, Color.ORANGE_RED, 0.1)
+	DebugDraw3D.draw_arrow(p1_origin, p1_origin + p1_basis.y * 1.5, Color.YELLOW, 0.1)
+
+	DebugDraw3D.draw_arrow(p2_origin, p2_origin + p2_basis.z * 2.0, Color.DEEP_SKY_BLUE, 0.1)
+	DebugDraw3D.draw_arrow(p2_origin, p2_origin - p2_basis.z * 2.0, Color.ORANGE_RED, 0.1)
+	DebugDraw3D.draw_arrow(p2_origin, p2_origin + p2_basis.y * 1.5, Color.YELLOW, 0.1)
 
 	projection()
 
 
-func projectionx() -> void:
-	if not cam3d or not cam1 or not cam2 or not renderer1 or not renderer2:
-		return
-		
-	# Resolution Sync
-	var window_size = get_viewport().get_visible_rect().size
-	var target_res = Vector2i(window_size)
-	if renderer1.size != target_res: renderer1.size = target_res
-	if renderer2.size != target_res: renderer2.size = target_res
-
-	portal_material_1.set_shader_parameter("portal_texture", renderer2.get_texture())
-	portal_material_2.set_shader_parameter("portal_texture", renderer1.get_texture())
-
-	var main_cam_transform: Transform3D = cam3d.global_transform
-
-	# --- RECURSIVE BOUNCE 1 ---
-	_update_portal_camera_transforms(main_cam_transform)
-	renderer1.render_target_update_mode = SubViewport.UPDATE_ONCE
-	renderer2.render_target_update_mode = SubViewport.UPDATE_ONCE
-	await RenderingServer.frame_post_draw
-	
-	# --- RECURSIVE BOUNCE 1 ---
-	_update_portal_camera_transforms(main_cam_transform)
-	renderer1.render_target_update_mode = SubViewport.UPDATE_ONCE
-	renderer2.render_target_update_mode = SubViewport.UPDATE_ONCE
-	await RenderingServer.frame_post_draw
-
-	# --- RECURSIVE BOUNCE 2 ---
-	_update_portal_camera_transforms(main_cam_transform)
-	renderer1.render_target_update_mode = SubViewport.UPDATE_ONCE
-	renderer2.render_target_update_mode = SubViewport.UPDATE_ONCE
-	await RenderingServer.frame_post_draw
-
-	# --- RECURSIVE BOUNCE 3 ---
-	_update_portal_camera_transforms(main_cam_transform)
-	renderer1.render_target_update_mode = SubViewport.UPDATE_ONCE
-	renderer2.render_target_update_mode = SubViewport.UPDATE_ONCE
+# ============================================================
+# MAIN PORTAL PROJECTION
+# ============================================================
 
 func projection() -> void:
-	if not cam3d or not cam1 or not cam2 or not renderer1 or not renderer2:
+
+	if not cam3d:
 		return
 
-	var window_size := get_viewport().get_visible_rect().size
-	var target_res := Vector2i(window_size)
+	# --------------------------------------------------------
+	# Match viewport size.
+	# --------------------------------------------------------
 
-	if renderer1.size != target_res:
-		renderer1.size = target_res
+	_sync_viewport_size()
 
-	if renderer2.size != target_res:
-		renderer2.size = target_res
+
+	# --------------------------------------------------------
+	# IMPORTANT:
+	#
+	# Use the camera's FINAL camera transform.
+	#
+	# This is better for your smoothed camera than reading
+	# the player's physics transform.
+	#
+	# get_camera_transform() includes camera offsets and
+	# adjustments used by Camera3D.
+	# --------------------------------------------------------
+
+	var main_cam_transform: Transform3D = (
+		cam3d.get_camera_transform()
+	)
+
+
+	# --------------------------------------------------------
+	# Match the optical/projection parameters.
+	#
+	# We do NOT run the player's camera system again.
+	# We only copy the values required to reproduce the view.
+	# --------------------------------------------------------
+
+	_sync_camera_projection(cam3d, cam1)
+	_sync_camera_projection(cam3d, cam2)
+
+
+	# --------------------------------------------------------
+	# Calculate portal camera transforms.
+	# --------------------------------------------------------
+
+	var cam2_transform := _map_camera_through_portal(
+		main_cam_transform,
+		p1_mask,
+		p2_mask
+	)
+
+	var cam1_transform := _map_camera_through_portal(
+		main_cam_transform,
+		p2_mask,
+		p1_mask
+	)
+
+
+	# --------------------------------------------------------
+	# Apply transforms.
+	# --------------------------------------------------------
+
+	cam1.global_transform = cam1_transform
+	cam2.global_transform = cam2_transform
+
+
+	# --------------------------------------------------------
+	# Connect textures.
+	#
+	# Portal 1 shows Renderer2.
+	# Portal 2 shows Renderer1.
+	# --------------------------------------------------------
 
 	portal_material_1.set_shader_parameter(
 		"portal_texture",
@@ -164,34 +293,213 @@ func projection() -> void:
 		renderer1.get_texture()
 	)
 
-	# ALWAYS use the CURRENT camera transform
-	var main_cam_transform := cam3d.global_transform
 
-	_update_portal_camera_transforms(main_cam_transform)
+	# --------------------------------------------------------
+	# Render ONE time this frame.
+	# --------------------------------------------------------
 
-	# Render exactly once using those transforms
-	renderer1.render_target_update_mode = SubViewport.UPDATE_ONCE
-	renderer2.render_target_update_mode = SubViewport.UPDATE_ONCE
+	renderer1.render_target_update_mode = (
+		SubViewport.UPDATE_ONCE
+	)
 
-func _update_portal_camera_transforms(main_cam_transform: Transform3D) -> void:
-	if not p1_mask or not p2_mask: return
-	
-	# =================================================================
-	# DYNAMIC DUAL-SURFACE REFLECTION LOGIC (Handles Any Rotation angle)
-	# =================================================================
-	# Construct our local mirroring flip operator matrix
-	var flip_matrix = Transform3D.IDENTITY
-	flip_matrix.basis.x = -flip_matrix.basis.x
-	flip_matrix.basis.z = -flip_matrix.basis.z
+	renderer2.render_target_update_mode = (
+		SubViewport.UPDATE_ONCE
+	)
 
-	# --- Update CAM2 (Tracks Portal 1 Input -> Displays on Portal 2) ---
-	var p1_local_cam = p1_mask.global_transform.affine_inverse() * main_cam_transform
-	p1_local_cam = flip_matrix * p1_local_cam
-	if cam2:
-		cam2.global_transform = p2_mask.global_transform * p1_local_cam
 
-	# --- Update CAM1 (Tracks Portal 2 Input -> Displays on Portal 1) ---
-	var p2_local_cam = p2_mask.global_transform.affine_inverse() * main_cam_transform
-	p2_local_cam = flip_matrix * p2_local_cam
-	if cam1:
-		cam1.global_transform = p1_mask.global_transform * p2_local_cam
+# ============================================================
+# PORTAL CAMERA MAPPING
+#
+# Mathematical form:
+#
+# C_out = T_out * F * inverse(T_in) * C_main
+#
+# T_in   = source portal transform
+# T_out  = destination portal transform
+# C_main = main camera transform
+# F      = 180° rotation in portal-local space
+#
+# This is the standard rigid-body coordinate-space mapping
+# used by planar portal systems.
+# ============================================================
+
+func _map_camera_through_portal(
+	camera_transform: Transform3D,
+	source_portal: Node3D,
+	destination_portal: Node3D
+) -> Transform3D:
+
+	# --------------------------------------------------------
+	# Use rigid portal transforms.
+	#
+	# Portal meshes may have scale applied for visual size.
+	# We do not want that scale to distort the virtual camera.
+	# --------------------------------------------------------
+
+	var source_transform := _rigid_transform(source_portal)
+	var destination_transform := _rigid_transform(
+		destination_portal
+	)
+
+
+	# --------------------------------------------------------
+	# Convert camera from world space into source-portal space.
+	#
+	# p_local = inverse(T_source) * p_world
+	# --------------------------------------------------------
+
+	var local_camera := (
+		source_transform.affine_inverse()
+		* camera_transform
+	)
+
+
+	# --------------------------------------------------------
+	# 180° rotation around the portal's local Y axis.
+	#
+	# Matrix:
+	#
+	# [-1  0  0]
+	# [ 0  1  0]
+	# [ 0  0 -1]
+	#
+	# This reverses the forward/backward and left/right
+	# directions while preserving portal up.
+	# --------------------------------------------------------
+
+	var flip := Transform3D.IDENTITY
+
+	flip.basis.x = -flip.basis.x
+	flip.basis.z = -flip.basis.z
+
+
+	local_camera = flip * local_camera
+
+
+	# --------------------------------------------------------
+	# Convert back into world space at destination portal.
+	# --------------------------------------------------------
+
+	var destination_camera := (
+		destination_transform
+		* local_camera
+	)
+
+
+	return destination_camera
+
+
+# ============================================================
+# RIGID PORTAL TRANSFORM
+# ============================================================
+
+func _rigid_transform(node: Node3D) -> Transform3D:
+
+	var basis := node.global_transform.basis.orthonormalized()
+
+	return Transform3D(
+		basis,
+		node.global_position
+	)
+
+
+# ============================================================
+# CAMERA OPTICS SYNCHRONIZATION
+# ============================================================
+
+func _sync_camera_projection(
+	main_camera: Camera3D,
+	portal_camera: Camera3D
+) -> void:
+
+	if not main_camera or not portal_camera:
+		return
+
+
+	# --------------------------------------------------------
+	# Projection mode
+	# --------------------------------------------------------
+
+	portal_camera.projection = main_camera.projection
+
+
+	# --------------------------------------------------------
+	# Perspective camera
+	# --------------------------------------------------------
+
+	if main_camera.projection == Camera3D.PROJECTION_PERSPECTIVE:
+
+		# Your responsive FOV gets copied every frame.
+		portal_camera.fov = main_camera.fov
+
+
+	# --------------------------------------------------------
+	# Orthographic / frustum camera
+	# --------------------------------------------------------
+
+	else:
+
+		portal_camera.size = main_camera.size
+
+		portal_camera.frustum_offset = (
+			main_camera.frustum_offset
+		)
+
+
+	# --------------------------------------------------------
+	# Needed clipping parameters
+	# --------------------------------------------------------
+
+	portal_camera.near = main_camera.near
+	portal_camera.far = main_camera.far
+
+
+	# --------------------------------------------------------
+	# Aspect behavior
+	# --------------------------------------------------------
+
+	portal_camera.keep_aspect = main_camera.keep_aspect
+
+
+	# --------------------------------------------------------
+	# Camera offsets are NOT copied.
+	#
+	# get_camera_transform() above already contains the
+	# effective camera transform including these adjustments.
+	# --------------------------------------------------------
+
+
+	# --------------------------------------------------------
+	# Optional camera attributes.
+	#
+	# Keeps exposure/visual camera attributes consistent
+	# without recreating the player's camera logic.
+	# --------------------------------------------------------
+
+	portal_camera.attributes = main_camera.attributes
+
+
+# ============================================================
+# VIEWPORT SIZE
+# ============================================================
+
+func _sync_viewport_size() -> void:
+
+	if not renderer1 or not renderer2:
+		return
+
+	var window_size: Vector2 = (
+		get_viewport().get_visible_rect().size
+	)
+
+	var target_size := Vector2i(
+		maxi(1, int(window_size.x)),
+		maxi(1, int(window_size.y))
+	)
+
+
+	if renderer1.size != target_size:
+		renderer1.size = target_size
+
+	if renderer2.size != target_size:
+		renderer2.size = target_size
