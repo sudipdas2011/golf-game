@@ -12,7 +12,7 @@ size = Vector3(2, 0.1, 1)
 [sub_resource type="QuadMesh" id="QuadMesh_teydy"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_u7opa"]
-size = Vector3(2, 2, 0.5)
+size = Vector3(2, 2, 0.05)
 
 [node name="Portal0Q2" type="Node3D" unique_id=1285237166]
 script = ExtResource("1_5seft")
@@ -44,7 +44,7 @@ current = true
 
 [node name="Area1" type="Area3D" parent="Portal1" unique_id=483083969]
 unique_name_in_owner = true
-transform = Transform3D(0.91891617, 0, 0.39445296, 0, 1, 0, -0.39445296, 0, 0.91891617, 0, 1, 0.025)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -0.25)
 collision_mask = 31
 
 [node name="CollShape1" type="CollisionShape3D" parent="Portal1/Area1" unique_id=283666781]
@@ -54,7 +54,7 @@ shape = SubResource("BoxShape3D_u7opa")
 
 [node name="Area12" type="Area3D" parent="Portal1" unique_id=1831826484]
 unique_name_in_owner = true
-transform = Transform3D(0.91891617, 0, 0.39445296, 0, 1, 0, -0.39445296, 0, 0.91891617, 0, 1, 0.025)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.25)
 collision_mask = 31
 
 [node name="CollShape12" type="CollisionShape3D" parent="Portal1/Area12" unique_id=832693334]
@@ -89,7 +89,7 @@ current = true
 
 [node name="Area2" type="Area3D" parent="Portal2" unique_id=619361115]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.025)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -0.25)
 collision_mask = 31
 
 [node name="CollShape2" type="CollisionShape3D" parent="Portal2/Area2" unique_id=516958380]
@@ -98,7 +98,7 @@ shape = SubResource("BoxShape3D_u7opa")
 
 [node name="Area22" type="Area3D" parent="Portal2" unique_id=1022325320]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.025)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.25)
 collision_mask = 31
 
 [node name="CollShape22" type="CollisionShape3D" parent="Portal2/Area22" unique_id=1843975771]
@@ -140,3 +140,4 @@ anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("2_b8k7s")
+collshape_thickness = 0.5

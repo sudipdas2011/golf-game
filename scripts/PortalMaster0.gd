@@ -103,7 +103,7 @@ func _process(delta: float) -> void:
 	projection()
 
 
-func projection() -> void:
+func projectionx() -> void:
 	if not cam3d or not cam1 or not cam2 or not renderer1 or not renderer2:
 		return
 		
@@ -141,6 +141,37 @@ func projection() -> void:
 	renderer1.render_target_update_mode = SubViewport.UPDATE_ONCE
 	renderer2.render_target_update_mode = SubViewport.UPDATE_ONCE
 
+func projection() -> void:
+	if not cam3d or not cam1 or not cam2 or not renderer1 or not renderer2:
+		return
+
+	var window_size := get_viewport().get_visible_rect().size
+	var target_res := Vector2i(window_size)
+
+	if renderer1.size != target_res:
+		renderer1.size = target_res
+
+	if renderer2.size != target_res:
+		renderer2.size = target_res
+
+	portal_material_1.set_shader_parameter(
+		"portal_texture",
+		renderer2.get_texture()
+	)
+
+	portal_material_2.set_shader_parameter(
+		"portal_texture",
+		renderer1.get_texture()
+	)
+
+	# ALWAYS use the CURRENT camera transform
+	var main_cam_transform := cam3d.global_transform
+
+	_update_portal_camera_transforms(main_cam_transform)
+
+	# Render exactly once using those transforms
+	renderer1.render_target_update_mode = SubViewport.UPDATE_ONCE
+	renderer2.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 func _update_portal_camera_transforms(main_cam_transform: Transform3D) -> void:
 	if not p1_mask or not p2_mask: return
