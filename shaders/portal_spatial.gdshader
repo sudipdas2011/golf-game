@@ -1,14 +1,26 @@
 shader_type spatial;
-render_mode unshaded, cull_disabled; 
+render_mode unshaded, cull_disabled, fog_disabled;
 
-uniform sampler2D portal_texture : source_color, filter_linear_mipmap, repeat_disable;
-// The professional cheat: this tint color masks where the 3-bounce rendering depth stops
-uniform vec4 fallback_color : source_color = vec4(0.0, 0.4, 0.8, 1.0); 
+uniform sampler2D portal_texture : source_color, filter_linear, repeat_disable;
+uniform vec4 fallback_color : source_color = vec4(0.0, 0.4, 0.8, 1.0);
+
+uniform mat4 portal_map;        // world (at display portal) -> world (at source portal)
+uniform mat4 portal_view_proj;  // virtual camera projection * view
 
 void fragment() {
-	vec2 proj_uv = SCREEN_UV;
-	vec4 color = texture(portal_texture, proj_uv);
-	
-	// If the viewport rendering loop stops, smoothly fade into the portal fog color
-	ALBEDO = mix(color.rgb, fallback_color.rgb, 1.0 - color.a);
+	// fragment on the display portal, in world space
+	vec4 world = INV_VIEW_MATRIX * vec4(VERTEX, 1.0);
+
+	// same point seen from the other side of the portal pair, through the virtual camera
+	vec4 clip = portal_view_proj * (portal_map * world);
+	if (clip.w <= 0.00001) {
+		discard;
+	}
+
+	vec2 uv = clip.xy / clip.w * 0.5 + 0.5;
+	uv.y = 1.0 - uv.y;
+	uv = clamp(uv, vec2(0.0), vec2(1.0));
+
+	vec4 color = texture(portal_texture, uv);
+	ALBEDO = mix(fallback_color.rgb, color.rgb, color.a);
 }
