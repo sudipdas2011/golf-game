@@ -10,7 +10,7 @@ bounce = 0.2
 [sub_resource type="SphereShape3D" id="SphereShape3D_fjs3g"]
 radius = 0.25
 
-[node name="PlayerMain" type="RigidBody3D" unique_id=1623447254]
+[node name="PlayerMain" type="RigidBody3D" unique_id=1623447254 groups=["Player", "SceneObject"]]
 collision_layer = 4
 mass = 3.0
 physics_material_override = SubResource("PhysicsMaterial_dc17i")

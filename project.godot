@@ -33,6 +33,7 @@ window/stretch/aspect="expand"
 [global_group]
 
 SceneObject="anything in the scene like terrain"
+Player="player only (only 1 at a time)"
 
 [input]
 

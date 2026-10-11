@@ -16,6 +16,7 @@ size = Vector3(2, 2, 0.5)
 
 [node name="Portal0Q2" type="Node3D" unique_id=1285237166]
 script = ExtResource("1_5seft")
+recursion_levels = 1
 
 [node name="Portal1" type="StaticBody3D" parent="." unique_id=845349372]
 unique_name_in_owner = true

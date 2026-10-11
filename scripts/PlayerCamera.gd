@@ -27,7 +27,7 @@ const fov_fac := 7.0
 
 # State Tracking Variables
 var camera_anchor_offset: float = 0.0
-var player_pos: Vector3 = Vector3.ZERO
+@export var player_pos: Vector3 = Vector3.ZERO
 var prev_pos: Vector3 = Vector3.ZERO
 var camera_anchor_pos: Vector3 = Vector3.ZERO
 
