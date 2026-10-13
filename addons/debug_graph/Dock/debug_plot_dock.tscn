@@ -1,0 +1,301 @@
+[gd_scene format=3 uid="uid://cor1rd0snkdar"]
+
+[ext_resource type="Script" uid="uid://dkj6cl05tbvxg" path="res://addons/debug_graph/Dock/debug_plot_dock.gd" id="2_54t7l"]
+[ext_resource type="Texture2D" uid="uid://b7yewbtou2xnc" path="res://addons/debug_graph/Icons/Gear.svg" id="2_650gd"]
+[ext_resource type="Script" uid="uid://dx5bre15bnp67" path="res://addons/debug_graph/Dock/timeline.gd" id="2_6567j"]
+[ext_resource type="PackedScene" uid="uid://dayt87kybshif" path="res://addons/debug_graph/Dock/window.tscn" id="2_irgu5"]
+[ext_resource type="Texture2D" uid="uid://chjrp5w4xgd2x" path="res://addons/debug_graph/Icons/Arrow_out.svg" id="3_73wy8"]
+[ext_resource type="Texture2D" uid="uid://jbpwf6sfqisw" path="res://addons/debug_graph/Icons/Eraser.svg" id="3_650gd"]
+[ext_resource type="Texture2D" uid="uid://c6u34ysniwgbu" path="res://addons/debug_graph/Icons/Arrow_in.svg" id="4_jr1kf"]
+[ext_resource type="PackedScene" uid="uid://c0yggf2m5x6jm" path="res://addons/debug_graph/Dock/data_legend_item.tscn" id="5_omtmw"]
+[ext_resource type="Texture2D" uid="uid://dtyi33tjrhdks" path="res://addons/debug_graph/Icons/Record.svg" id="6_ycexu"]
+[ext_resource type="Texture2D" uid="uid://du8nomncqqgp8" path="res://addons/debug_graph/Icons/Stop.svg" id="7_yccpo"]
+[ext_resource type="Texture2D" uid="uid://s2mof0r8n1tq" path="res://addons/debug_graph/Icons/Pause.svg" id="8_p3vbi"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_54t7l"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6567j"]
+bg_color = Color(0.1273711, 0.12737113, 0.12737104, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_54t7l"]
+content_margin_left = 74.0
+bg_color = Color(0.8784314, 0.8784314, 0.8784314, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="Debug Graph" type="Control" unique_id=1826658202 node_paths=PackedStringArray("timeline", "memory_spin_box", "settings_menu", "data_legend", "windowed_button", "unwindowed_button", "popped_out_panel_below")]
+clip_contents = true
+custom_minimum_size = Vector2(250, 200)
+layout_mode = 3
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1152.0
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("2_54t7l")
+timeline = NodePath("HSplitContainer/VBoxContainer/Timeline")
+memory_spin_box = NodePath("HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/ViewportHBox/MemorySpinBox")
+settings_menu = NodePath("HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/Settings Menu")
+data_legend = NodePath("HSplitContainer/VBoxContainer/Legend ScrollContainer/Legend Data")
+windowed_button = NodePath("HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/Windowed Button")
+unwindowed_button = NodePath("HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/Unwindowed Button")
+popped_out_panel_below = NodePath("Popped Out Panel (Below)")
+window_scene = ExtResource("2_irgu5")
+
+[node name="Popped Out Panel (Below)" type="VBoxContainer" parent="." unique_id=739711308]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Window popped out" type="Label" parent="Popped Out Panel (Below)" unique_id=1074273283]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Windowed mode active, nothing to display"
+horizontal_alignment = 1
+
+[node name="Return window" type="Button" parent="Popped Out Panel (Below)" unique_id=2043547063]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Return window"
+icon = ExtResource("4_jr1kf")
+
+[node name="HSplitContainer" type="HSplitContainer" parent="." unique_id=646280744]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/touch_dragger_color = Color(1, 0, 1, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer" unique_id=633421029]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Options ScrollContainer" type="ScrollContainer" parent="HSplitContainer/VBoxContainer" unique_id=90213204]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+vertical_scroll_mode = 0
+
+[node name="Options HBox" type="HBoxContainer" parent="HSplitContainer/VBoxContainer/Options ScrollContainer" unique_id=1045089905]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Settings Menu" type="MenuButton" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=1871598187]
+layout_mode = 2
+tooltip_text = "Settings"
+icon = ExtResource("2_650gd")
+item_count = 7
+popup/item_0/text = "Visual"
+popup/item_0/id = 0
+popup/item_0/separator = true
+popup/item_1/text = "Highlight Current Values"
+popup/item_1/checkable = 1
+popup/item_1/id = 1
+popup/item_2/text = "Local Value Range"
+popup/item_2/checkable = 1
+popup/item_2/id = 2
+popup/item_3/text = "Fit Value Range to Viewport"
+popup/item_3/checkable = 1
+popup/item_3/id = 7
+popup/item_4/text = "Display Cursor Value"
+popup/item_4/checkable = 1
+popup/item_4/id = 3
+popup/item_5/text = "Recording"
+popup/item_5/id = 0
+popup/item_5/separator = true
+popup/item_6/text = "Manual Recording Control"
+popup/item_6/checkable = 1
+popup/item_6/id = 6
+
+[node name="Windowed Button" type="Button" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=578600731]
+layout_mode = 2
+tooltip_text = "Enter windowed mode"
+icon = ExtResource("3_73wy8")
+flat = true
+
+[node name="Unwindowed Button" type="Button" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=1212267724]
+visible = false
+layout_mode = 2
+tooltip_text = "Exit windowed mode"
+icon = ExtResource("4_jr1kf")
+flat = true
+
+[node name="HighlightCurrentValues" type="CheckButton" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=1638828403]
+visible = false
+layout_mode = 2
+text = "Highlight current values"
+
+[node name="GlobalValueRange" type="CheckButton" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=1170570487]
+visible = false
+layout_mode = 2
+button_pressed = true
+text = "Global value range"
+
+[node name="ViewportHBox" type="HBoxContainer" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=1423071749]
+layout_mode = 2
+tooltip_text = "Window in seconds (0 for auto-scale)"
+
+[node name="MemoryLabel" type="Label" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/ViewportHBox" unique_id=1777834730]
+layout_mode = 2
+text = "Viewport:"
+label_settings = SubResource("LabelSettings_54t7l")
+
+[node name="MemorySpinBox" type="SpinBox" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/ViewportHBox" unique_id=136656465]
+layout_mode = 2
+max_value = 500.0
+step = 0.1
+value = 10.0
+update_on_text_changed = true
+suffix = "s"
+custom_arrow_step = 1.0
+custom_arrow_round = true
+select_all_on_focus = true
+
+[node name="DecimalsHBox" type="HBoxContainer" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=1416539938]
+layout_mode = 2
+tooltip_text = "Decimal numbers displayed"
+
+[node name="DecimalsLabel" type="Label" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/DecimalsHBox" unique_id=1766247890]
+layout_mode = 2
+text = "Decimals:"
+label_settings = SubResource("LabelSettings_54t7l")
+
+[node name="DecimalsSpinBox" type="SpinBox" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/DecimalsHBox" unique_id=403749901]
+layout_mode = 2
+max_value = 15.0
+value = 3.0
+rounded = true
+custom_arrow_step = 1.0
+custom_arrow_round = true
+select_all_on_focus = true
+
+[node name="Remember graph upon restart" type="CheckButton" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=1401881706]
+visible = false
+layout_mode = 2
+text = "Remember graph upon play"
+
+[node name="Spacer (expand" type="Control" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=2115686134]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Spacer (small) 1" type="Control" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=1672186685]
+custom_minimum_size = Vector2(11.655, 0)
+layout_mode = 2
+
+[node name="Record Button" type="Button" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=1287181765]
+layout_mode = 2
+tooltip_text = "Record 
+('Manual recording control' is disabled, recording will start automatically)"
+disabled = true
+icon = ExtResource("6_ycexu")
+flat = true
+
+[node name="Pause Button" type="Button" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=834208934]
+visible = false
+layout_mode = 2
+tooltip_text = "Pause (enable manual recording control in settings)"
+disabled = true
+icon = ExtResource("8_p3vbi")
+flat = true
+
+[node name="Stop Button" type="Button" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=30867664]
+layout_mode = 2
+tooltip_text = "Stop 
+('Manual recording control' is disabled, recording will start automatically)"
+disabled = true
+icon = ExtResource("7_yccpo")
+flat = true
+
+[node name="Spacer (small) 2" type="Control" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=1825442196]
+custom_minimum_size = Vector2(11.655, 0)
+layout_mode = 2
+
+[node name="Clear Button" type="Button" parent="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox" unique_id=1464938543]
+layout_mode = 2
+tooltip_text = "Clear graph"
+icon = ExtResource("3_650gd")
+flat = true
+
+[node name="Timeline" type="Panel" parent="HSplitContainer/VBoxContainer" unique_id=1774038125 node_paths=PackedStringArray("timeline_scrollbar", "current_time_label", "debug_graph_dock", "decimals_spinbox")]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("2_6567j")
+timeline_scrollbar = NodePath("../Timeline Scrollbar")
+current_time_label = NodePath("../Legend ScrollContainer/Legend Data/Current Time Label")
+debug_graph_dock = NodePath("../../..")
+decimals_spinbox = NodePath("../Options ScrollContainer/Options HBox/DecimalsHBox/DecimalsSpinBox")
+
+[node name="Timeline Scrollbar" type="HScrollBar" parent="HSplitContainer/VBoxContainer" unique_id=450267316]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+theme_override_styles/scroll = SubResource("StyleBoxFlat_6567j")
+theme_override_styles/grabber = SubResource("StyleBoxFlat_54t7l")
+max_value = 1.0
+value = 1.0
+
+[node name="Legend ScrollContainer" type="ScrollContainer" parent="HSplitContainer/VBoxContainer" unique_id=1608982947]
+custom_minimum_size = Vector2(0, 23)
+layout_mode = 2
+vertical_scroll_mode = 0
+
+[node name="Legend Data" type="HBoxContainer" parent="HSplitContainer/VBoxContainer/Legend ScrollContainer" unique_id=458815103]
+custom_minimum_size = Vector2(0, 23)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+alignment = 2
+
+[node name="Current Time Label" type="Label" parent="HSplitContainer/VBoxContainer/Legend ScrollContainer/Legend Data" unique_id=1002413656]
+z_index = 1
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+tooltip_text = "Program terminated"
+mouse_filter = 1
+text = "💀 0.0s"
+
+[node name="Spacer (expand" type="Control" parent="HSplitContainer/VBoxContainer/Legend ScrollContainer/Legend Data" unique_id=1671524253]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Placeholder empty" parent="HSplitContainer/VBoxContainer/Legend ScrollContainer/Legend Data" unique_id=859291398 instance=ExtResource("5_omtmw")]
+layout_mode = 2
+tooltip_text = ""
+
+[node name="ColorRect" parent="HSplitContainer/VBoxContainer/Legend ScrollContainer/Legend Data/Placeholder empty" index="0" unique_id=824908996]
+visible = false
+color = Color(0.8784314, 0.8784314, 0.8784314, 1)
+
+[node name="Label" parent="HSplitContainer/VBoxContainer/Legend ScrollContainer/Legend Data/Placeholder empty" index="1" unique_id=653296161]
+visible = false
+theme_override_colors/font_color = Color(0.8784314, 0.8784314, 0.8784314, 1)
+text = "No data"
+
+[node name="Data Values Panel" type="Control" parent="HSplitContainer" unique_id=68496647]
+z_index = -1
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+
+[connection signal="pressed" from="Popped Out Panel (Below)/Return window" to="." method="_on_return_window_pressed"]
+[connection signal="pressed" from="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/Windowed Button" to="." method="_on_windowed_pressed"]
+[connection signal="pressed" from="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/Unwindowed Button" to="." method="_on_unwindowed_button_pressed"]
+[connection signal="toggled" from="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/HighlightCurrentValues" to="." method="_on_highlight_current_values_toggled"]
+[connection signal="toggled" from="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/GlobalValueRange" to="." method="_on_global_peak_value_toggled"]
+[connection signal="value_changed" from="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/ViewportHBox/MemorySpinBox" to="." method="_on_memory_spin_box_value_changed"]
+[connection signal="value_changed" from="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/DecimalsHBox/DecimalsSpinBox" to="HSplitContainer/VBoxContainer/Timeline" method="_on_decimals_spin_box_value_changed"]
+[connection signal="pressed" from="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/Record Button" to="." method="_on_record_button_pressed"]
+[connection signal="pressed" from="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/Stop Button" to="." method="_on_stop_button_pressed"]
+[connection signal="pressed" from="HSplitContainer/VBoxContainer/Options ScrollContainer/Options HBox/Clear Button" to="." method="_on_clear_button_pressed"]
+[connection signal="value_changed" from="HSplitContainer/VBoxContainer/Timeline Scrollbar" to="HSplitContainer/VBoxContainer/Timeline" method="_on_timeline_scrollbar_value_changed"]
+
+[editable path="HSplitContainer/VBoxContainer/Legend ScrollContainer/Legend Data/Placeholder empty"]

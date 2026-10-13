@@ -20,6 +20,7 @@ config/icon="uid://dfxdovhvj8vmm"
 [autoload]
 
 GlobalCursor="*uid://cevdo81fcjeq4"
+DebugGraph="*uid://d1yj0qtdy68p"
 
 [debug_draw_3d]
 
@@ -29,6 +30,10 @@ settings/addon_root_folder="res://debug_draw_3d-1.7.3/addons/debug_draw_3d"
 
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/debug_graph/plugin.cfg")
 
 [global_group]
 

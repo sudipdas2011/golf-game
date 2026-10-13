@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://dayt87kybshif"]
+
+[ext_resource type="Script" uid="uid://bfvd42frhbv75" path="res://addons/debug_graph/Dock/window.gd" id="1_dcp76"]
+
+[node name="Window" type="Window" unique_id=242167981]
+oversampling_override = 1.0
+position = Vector2i(0, 36)
+content_scale_mode = 1
+script = ExtResource("1_dcp76")
+
+[node name="Parent" type="Control" parent="." unique_id=1826658202]
+clip_contents = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[connection signal="size_changed" from="." to="." method="_on_size_changed"]

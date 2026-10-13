@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://c0yggf2m5x6jm"]
+
+[ext_resource type="Script" uid="uid://ccyr4x5g65s8n" path="res://addons/debug_graph/Dock/data_legend_item.gd" id="1_236ss"]
+
+[node name="Data Legend Item" type="HBoxContainer" unique_id=859291398 node_paths=PackedStringArray("name_label", "color_rect")]
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -56.0
+offset_top = -11.5
+offset_bottom = 11.5
+grow_horizontal = 0
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+tooltip_text = "Click to disable/enable"
+script = ExtResource("1_236ss")
+name_label = NodePath("Label")
+color_rect = NodePath("ColorRect")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=824908996]
+custom_minimum_size = Vector2(10, 14)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+color = Color(0.43508825, 0.5485668, 0.6593687, 1)
+
+[node name="Label" type="Label" parent="." unique_id=653296161]
+layout_mode = 2
+text = "Label"
